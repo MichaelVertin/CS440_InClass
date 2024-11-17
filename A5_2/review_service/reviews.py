@@ -7,7 +7,7 @@ import requests
 app = Flask(__name__)
 
 
-BOOK_SERVICE_URL = 'http://localhost:5001/api/books'
+BOOK_SERVICE_URL = 'http://book-service:5001/api/books'
 
 
 def get_db_connection():
