@@ -4,12 +4,12 @@ import requests
 
 app = Flask(__name__)
 
-with open("log.txt", 'a') as f:
-    f.write("1\n")
+#with open("log.txt", 'a') as f:
+#    f.write("1\n")
 
 class APIGateway:
     # Define service locations
-    SERIVES = {
+    SERVICES = {
         'book_service': 'http://book-service:5001/api/books', 
         'order_service': 'http://review-service:5002/api/reviews',
         'web_service': 'http://localhost:3000'
@@ -20,14 +20,18 @@ class APIGateway:
         services = APIGateway.SERVICES
 
         # Simple request forwarding to services
-        if services_name not in services:
-            return {'error': 'Service name not recognized'}
-        url = f"{services[services_name]}{path}"
+        if service_name not in services:
+            return {'error': f'Service name {service_name} not recognized'}
+        url = f"{services[service_name]}{path}"
         try:
             response = requests.get(url)
-            return response.json()
-        except:
-            return {'error': 'Service unavailable'}
+            try:
+                return response.json()
+            except Exception as e:
+                #return {'error': f'failed to convert to json: {response} {dir(e)}'}
+                return {}
+        except Exception as e:
+            return {'error': f'Service unavailable: {e}'}
 
 @app.route('/api/books/<int:book_id>')
 def get_book(book_id):
@@ -59,7 +63,7 @@ def get_book_reviews(book_id):
 @app.route('/')
 def get_web_interface():
     return jsonify(APIGateway.forward_request(
-        service_name = 'web-interface', 
+        service_name = 'web_service', 
         path = '/'
     ))
 
