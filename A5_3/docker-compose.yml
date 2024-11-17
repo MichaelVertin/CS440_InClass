@@ -1,5 +1,21 @@
 version: '3.8'
-
+#apiVersion: networking.istio.io/v1alpha3
+#kind: VirtualService
+#metadata:
+#    name: review-service
+#spec:
+#    hosts:
+#     - review-service
+#    http:
+#     - route:
+#         - destination:
+#                host: review-service
+#                subset: v2
+#           weight: 10
+#         - destination:
+#               host: order-service
+#               subset: v2
+#           weight: 10
 
 services:
   book-service:
@@ -11,7 +27,6 @@ services:
       - book_data:/app/data
     networks:
       - booknet
-
 
   review-service:
     build: ./review_service
@@ -38,6 +53,20 @@ services:
     depends_on:
       - book-service
       - review-service
+
+  api_gateway:
+    build: ./api_gateway
+    ports:
+     - "8000:8000"
+    volumes:
+     - ./api_gateway:/app
+    networks:
+     - booknet
+    depends_on:
+     - web-interface
+     - review-service
+     - book-service
+
 
 networks:
   booknet:
